@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Pokemon</title>
+    <link rel="stylesheet" href="./assets/css/character.css">
+</head>
+<body>
+    <h1>Detalhes do Pokemon</h1>
+    <div class="container" id="character-details"></div>
+    <div class="pagination">
+       <a href="index.html"><button id="next">Voltar</button></a>
+    </div>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        let characterId = params.get("id"); // || é um or
+        let typePokemons ="";
+        const container = document.getElementById("character-details");
+
+        async function getCharacter(id) {
+            try {
+                container.innerHTML = "Carregando...";
+                const response = await fetch(`${id}`);
+            
+                if (!response.ok) {
+                    throw new Error("Personagem não encontrado"); 
+                }
+                const pokemon = await response.json(); 
+                tipo = pokemon['types']
+                tipo.forEach(tipoPokemon => {
+                    typePokemons += "<p><strong>Type: </strong> "+tipoPokemon.type.name.toUpperCase(); 
+                });
+
+            
+              
+
+                container.innerHTML = `
+                    <img src="${pokemon.sprites.front_default}" alt="${pokemon.name}">
+                    <h2>${pokemon.name.toUpperCase()}</h2>
+                    ${typePokemons}
+                    <h2>Version Group: ${pokemon.version_group.name}</h2>
+                `;
+                
+              
+            } catch (error) {
+                console.error("Erro ao carregar personagem", error);
+                container.innerHTML = "Erro ao carregar personagem";
+            }
+        };
+        
+
+        document.addEventListener("DOMContentLoaded", () => getCharacter(characterId));
+    </script>
+</body>
+</html>

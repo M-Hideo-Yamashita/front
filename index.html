@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokemons</title>
+    <link rel="stylesheet" href="./assets/css/index.css">
+</head>
+<body>
+    <h1>Pokemons</h1>
+    <input type="text" id="pokemonId"class="pokemonId" name="pokemonId">
+    <button onclick="getPokemonNome()" >Pesquisar</button>
+    <div class="container" id="character-container"></div>
+    <div class="pagination">
+        <button id="prev">Anterior</button>
+        <button id="next">Próximo</button>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        const container = document.getElementById("character-container");
+        const prevButton = document.getElementById("prev");
+        const nextButton = document.getElementById("next");
+
+        async function getCharacters(page) {
+            try {
+                count = page+1;
+                container.innerHTML = "Carregando...";
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon?offset=${page}&limit=20`);
+                const data = await response.json();
+                container.innerHTML = "";
+                data.results.forEach(character => {
+                    const card = document.createElement("div");
+                    card.className = "card";
+                    card.innerHTML = `
+                        <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${count}.png" alt="${character.name}">
+                        <p>Nº ${count}</p>
+                        <h4>${character.name.toUpperCase()}</h4>
+                    `;
+                    card.addEventListener("click", () => {
+                        window.location.href = `character.html?id=https://pokeapi.co/api/v2/pokemon-form/${character.name}/`;
+                    });
+                    container.appendChild(card);
+                    count++;
+                });
+                prevButton.disabled = !data.previous;
+                nextButton.disabled = !data.next;
+            } catch (error) {
+                console.error("Erro ao carregar personagens", error);
+                container.innerHTML = "Erro ao carregar personagens";
+            }
+        }
+
+        async function getPokemonNome()
+        {
+            try
+            {
+                const pokemon = document.getElementById("pokemonId").value.toLowerCase();
+                window.location.href = `character.html?id=https://pokeapi.co/api/v2/pokemon-form/${pokemon}/`;
+
+            }
+            catch(error)
+            {
+                console.error(error);
+            }
+        }
+
+        prevButton.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage -= 20;
+                getCharacters(currentPage);
+            }
+        });
+
+        nextButton.addEventListener("click", () => {
+            currentPage += 20;
+            getCharacters(currentPage);
+        });
+
+        document.addEventListener("DOMContentLoaded", () => getCharacters(currentPage));
+    </script>
+</body>
+</html>
